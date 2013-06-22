@@ -7,8 +7,8 @@ var ndoe = document.getElementById("ball").appendChild(renderer.domElement);
 ndoe.setAttribute("id", "icosahedron");
 
 //for controls
-var xrot = 0.03;
-var yrot = 0.02;
+var xrot = 0.00;
+var yrot = 0.00;
 var it = 0;
 var origin = new THREE.Vector3(0, 0, 0);
 var ico;
@@ -32,6 +32,8 @@ loader.load( 'icosahedron.dae', function ( collada ) {
  
     // Scale-up the model so that we can see it:
     ico.scale.x = ico.scale.y = ico.scale.z = 2.0;
+    ico.rotation.y = 3*Math.PI/6;
+    ico.rotation.z = -Math.PI/6;
  
     // Initialise and then animate the 3D scene
     // since we have now successfully loaded the model:
