@@ -97,28 +97,57 @@ function init(){
 }
 
 var showingWords = false;
-
+/*
 $("#ball").on("click", function(){
     if($("#icosahedron").css("opacity")%1 == 0 && $("#textarea").css("opacity")%1 == 0){
         showingWords = !showingWords;
 
         if(showingWords){
-            $("#textarea").text(messages[Math.round(Math.random()*(messages.length-1))]);
-            rotout.start();
+            
         }
         else{
-            textin.start();
+            
         }
 
     }
+});*/
+
+var mousepos = 0;
+var holding = false;
+
+$("body").on("mousemove", function(e){
+    mousepos = e.pageX;
+    $("#ball").css("bottom", 300);
+})
+
+$("body").on("mousedown", function(){
+    holding = true;
+    if($("#icosahedron").css("opacity")%1 == 0 && $("#textarea").css("opacity")%1 == 0){
+        textin.start();
+    }
 });
+
+$("body").on("mouseup", function(){
+    holding = false;
+    if($("#icosahedron").css("opacity")%1 == 0 && $("#textarea").css("opacity")%1 == 0){
+        $("#textarea").text(messages[Math.round(Math.random()*(messages.length-1))]);
+        rotout.start();
+    }
+})
 
 //////////////////////////////////////////
 
 function render() {
     requestAnimationFrame(render);
+
+    if(holding){
+        $("#centerer").css("width", mousepos);
+    }
+    else{
+        $("#ball").css("bottom", 150);
+    }
+
     renderer.render(scene, camera);
     TWEEN.update();
-
  }
 
