@@ -14,42 +14,31 @@ var origin = new THREE.Vector3(0, 0, 0);
 var ico;
 
 var messages = [
-    "try again",
-    "yes",
-    "no",
+    "check your spam filter for the email",
+    "clear your cache",
+    "close it and reopen it",
     "wait for the DNS to propagate"
 ];
+
+var group = new THREE.Object3D;
 
 //make shapes
 var loader = new THREE.ColladaLoader();
 loader.load( 'icosahedron.dae', function ( collada ) {
  
-    // Grab the collada scene data:
     ico = collada.scene;
- 
-    // No skin applied to my model so no need for the following:
-    // var skin = collada.skins[ 0 ];
- 
-    // Scale-up the model so that we can see it:
     ico.scale.x = ico.scale.y = ico.scale.z = 2.0;
     ico.rotation.y = 3*Math.PI/6;
     ico.rotation.z = -Math.PI/6;
- 
-    // Initialise and then animate the 3D scene
-    // since we have now successfully loaded the model:
-    scene.add(ico);
+    group.add(ico);
+    scene.add(group);
     init();
   });
 
-
-
-//var geometry = new THREE.SphereGeometry(magicnumber, magicnumber, 0, 30,1, false);
-//var material = new THREE.MeshLambertMaterial({color: 0x00ff00});
-
+var rotin, rotout, textin, textout; //you'll meet the tweens later
 
 function init(){
     //set camera position and direction
-    console.log('loaded');
     camera.position.z = 20;
     camera.position.y = 0;
     camera.lookAt(origin);
@@ -58,51 +47,78 @@ function init(){
     var pointLight = new THREE.PointLight(0xFFFFFF);
     scene.add(pointLight);
     pointLight.position.z = 50;
-    $("#textarea").hide();
+    $("#textarea").css("opacity", 0);
+
+
+    ////TWEENS, GET OFF MY LAWN
+    var rotation = { x : 0, y : 0, z : 0, opacity: 0};
+    var target = { x : 0, y : 0, z : 0, zz : -50, opacity: 0};
+    var end = { x : 0, y : 2*Math.PI, z : 0, zz: 0, opacity: 1};
+
+    rotin = new TWEEN.Tween(rotation).to(target, 1000);
+    rotin.onUpdate(function(){
+        group.rotation.x = rotation.x;
+        group.rotation.y = rotation.y;
+        group.rotation.z = rotation.z;
+        group.position.z = rotation.zz;
+        $("#icosahedron").css("opacity", rotation.opacity);
+    });
+    rotin.easing(TWEEN.Easing.Cubic.InOut);
+
+    rotout = new TWEEN.Tween(rotation).to(end, 1000);
+    rotout.onUpdate(function(){
+        group.rotation.x = rotation.x;
+        group.rotation.y = rotation.y;
+        group.rotation.z = rotation.z;
+        group.position.z = rotation.zz;
+        $("#icosahedron").css("opacity", rotation.opacity);
+    });
+    rotout.easing(TWEEN.Easing.Cubic.InOut);
+
+    var opac = {opacity:0};
+    var visible = {opacity:1};
+    var invisible = {opacity:0};
+    textout = new TWEEN.Tween(opac).to(visible, 500);
+    textout.onUpdate(function(){
+        $("#textarea").css("opacity", opac.opacity);
+    })
+    textout.easing(TWEEN.Easing.Cubic.InOut);
+
+    textin = new TWEEN.Tween(opac).to(invisible, 500);
+    textin.onUpdate(function(){
+        $("#textarea").css("opacity", opac.opacity);
+    })
+    textin.easing(TWEEN.Easing.Cubic.InOut);
+
+    textin.chain(rotin);
+    rotout.chain(textout);
+    rotin.start();
     render();
 }
 
+var showingWords = false;
+
 $("#ball").on("click", function(){
-    if($("#textarea").css("display") === "none"){
-        $("#textarea").text(messages[Math.round(Math.random()*(messages.length-1))]);
+    if($("#icosahedron").css("opacity")%1 == 0 && $("#textarea").css("opacity")%1 == 0){
+        showingWords = !showingWords;
+
+        if(showingWords){
+            $("#textarea").text(messages[Math.round(Math.random()*(messages.length-1))]);
+            rotout.start();
+        }
+        else{
+            textin.start();
+        }
+
     }
-    $("#textarea").fadeToggle("slow", "linear");
-})
+});
 
 //////////////////////////////////////////
 
 function render() {
     requestAnimationFrame(render);
     renderer.render(scene, camera);
-    ico.rotation.x += xrot;
-    ico.rotation.y += yrot;
-}
+    TWEEN.update();
 
-//controls ///////////////////////////////////////////////////////////////////////////
-/*
-
-renderer.domElement.addEventListener("mousemove", function (evt) {
-    if (evt.pageY - renderer.domElement.offsetTop < renderer.domElement.height / 3) {
-        xrot = -.03;
-    } else if (evt.pageY - renderer.domElement.offsetTop > 2 * renderer.domElement.height / 3) {
-        xrot = .03;
-    } else {
-        xrot = 0;
-    }
-    if (evt.pageX - renderer.domElement.offsetLeft < renderer.domElement.width / 3) {
-        yrot = .03;
-    } else if (evt.pageX - renderer.domElement.offsetLeft > 2 * renderer.domElement.width / 3) {
-        yrot = -.03;
-    } else {
-        yrot = 0;
-    }
-    camera.lookAt(origin);
-}, false);
-
-document.addEventListener("mouseout", function (evt) {
-    xrot = 0;
-    yrot = 0;
-    camera.lookAt(origin);
-}, false);
-*/
+ }
 
