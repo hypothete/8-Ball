@@ -22,6 +22,10 @@ var messages = [
 
 var group = new THREE.Object3D;
 
+var audioElement = document.createElement('audio');
+    audioElement.setAttribute('src', 'shaking.mp3');
+    audioElement.setAttribute('loop', 'loop');
+
 //make shapes
 var loader = new THREE.ColladaLoader();
 loader.load( 'icosahedron.dae', function ( collada ) {
@@ -96,24 +100,9 @@ function init(){
     render();
 }
 
-var showingWords = false;
-/*
-$("#ball").on("click", function(){
-    if($("#icosahedron").css("opacity")%1 == 0 && $("#textarea").css("opacity")%1 == 0){
-        showingWords = !showingWords;
-
-        if(showingWords){
-            
-        }
-        else{
-            
-        }
-
-    }
-});*/
-
 var mousepos = 0;
 var holding = false;
+
 
 $("body").on("mousemove", function(e){
     mousepos = e.pageX;
@@ -124,6 +113,7 @@ $("body").on("mousedown", function(){
     holding = true;
     if($("#icosahedron").css("opacity")%1 == 0 && $("#textarea").css("opacity")%1 == 0){
         textin.start();
+        audioElement.play();
     }
 });
 
@@ -132,6 +122,7 @@ $("body").on("mouseup", function(){
     if($("#icosahedron").css("opacity")%1 == 0 && $("#textarea").css("opacity")%1 == 0){
         $("#textarea").text(messages[Math.round(Math.random()*(messages.length-1))]);
         rotout.start();
+        audioElement.pause();
     }
 })
 
